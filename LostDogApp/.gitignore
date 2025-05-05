@@ -1,0 +1,63 @@
+bin/
+obj/
+*.db# Build results
+bin/
+obj/
+out/
+artifacts/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider and VSCode
+.idea/
+.vscode/
+
+# ASP.NET & EF stuff
+*.db
+*.sqlite
+*.mdf
+*.ldf
+*.log
+
+# Entity Framework
+# Migrations/
+
+# Logs
+*.log
+
+# Secrets
+secrets.json
+appsettings.Development.json
+
+# Docker
+Dockerfile.*
+docker-compose.*
+.dockerignore
+
+# Publish output
+wwwroot/
+publish/
+*.pubxml
+
+# Other tool folders
+node_modules/
+bower_components/
+package-lock.json
+yarn.lock
+
+# Tests
+TestResults/
+*.coverage
+*.coveragexml
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user

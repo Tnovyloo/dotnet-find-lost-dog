@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: lostdog-db
+    environment:
+      POSTGRES_USER: lostdog
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: lostdogapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: LostDogApp/Dockerfile
+  #   container_name: lostdog-web
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ConnectionStrings__DefaultConnection=Host=db;Database=lostdogapp;Username=lostdog;Password=password
+  #   ports:
+  #     - "8080:8080"
+
+  web-dev:
+    build:
+      context: .
+      dockerfile: LostDogApp/dev.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=lostdogapp;Username=lostdog;Password=password
+    depends_on:
+      - postgres
+    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080"]
+    volumes:
+      - ./LostDogApp:/src/LostDogApp
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
