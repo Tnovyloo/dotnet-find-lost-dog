@@ -12,16 +12,16 @@ This is a .NET 8 application for reporting lost dogs, built with ASP.NET Core an
 ## Project Structure
 
 ```
-LostDogApp/
+project/
 ├── LostDogApp/
 │   ├── LostDogApp.csproj
 │   ├── appsettings.json
 │   ├── Models/
 │   │   ├── LostDogReport.cs
 │   ├── Program.cs
-│   └── (other project files)
-├── Dockerfile
-├── dev.Dockerfile
+│   ├── (other project files)
+│   ├── Dockerfile
+│   └── dev.Dockerfile
 ├── docker-compose.yml
 ├── docker-compose-migrate.yml
 └── README.md
