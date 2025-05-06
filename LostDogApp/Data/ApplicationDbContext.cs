@@ -21,12 +21,11 @@ namespace LostDogApp.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Set up relationship between LostDogReport and ApplicationUser
             modelBuilder.Entity<LostDogReport>()
-                .HasOne<ApplicationUser>() // No navigation property yet
-                .WithMany()                // Or .WithMany(u => u.LostDogReports) if you add collection to ApplicationUser
-                .HasForeignKey(r => r.UserId) // Must match your LostDogReport property
-                .OnDelete(DeleteBehavior.Cascade); // Optional: choose appropriate behavior
+                .HasOne(r => r.User)
+                .WithMany(u => u.LostDogReports)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

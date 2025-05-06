@@ -70,12 +70,38 @@ namespace LostDogApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LostDogReport model)
         {
+
+            string? userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId)) {
+                return Challenge();
+            }
+
+            if (model.Latitude == null || model.Longitude == null)
+            {
+                ModelState.AddModelError("", "Both latitude and longitude are required");
+            }
+
+            ModelState.Remove("User");
+            ModelState.Remove("UserId");
+
             if (ModelState.IsValid)
             {
-                model.UserId = _userManager.GetUserId(User);
+                model.UserId = userId;
+                Console.WriteLine($"Creating report for user: {model.UserId}"); // Add logging
+                
                 _context.Add(model);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("Report created successfully"); // Add logging
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating report: {ex.Message}"); // Add logging
+                    ModelState.AddModelError("", "An error occurred while saving the report.");
+                }
             }
             return View(model);
         }
@@ -195,10 +221,6 @@ namespace LostDogApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LostDogReportExists(int id)
-        {
-            return _context.LostDogReports.Any(e => e.Id == id);
-        }
 
         private bool LostDogReportExists(int id)
         {

@@ -6,6 +6,22 @@
 
 <h1>Report a Lost Dog</h1>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <h5>Please fix the following errors:</h5>
+        <ul>
+            @foreach (var key in ViewData.ModelState.Keys)
+            {
+                foreach (var error in ViewData.ModelState[key].Errors)
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
 <hr />
 <div class="row">
     <div class="col-md-4">
