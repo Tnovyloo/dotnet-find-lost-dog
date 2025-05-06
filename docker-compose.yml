@@ -37,7 +37,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=lostdogapp;Username=lostdog;Password=password
     depends_on:
       - postgres
-    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080"]
+    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080", "--contentroot", "/src/LostDogApp"]
     volumes:
       - ./LostDogApp:/src/LostDogApp
     networks:

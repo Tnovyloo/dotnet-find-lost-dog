@@ -7,25 +7,39 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LostDogApp.Data;
 using LostDogApp.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace LostDogApp.Controllers
 {
     public class LostDogReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager; // Add UserManager here
 
-        public LostDogReportsController(ApplicationDbContext context)
+        // Inject UserManager<ApplicationUser> into the constructor
+        public LostDogReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager; // Initialize _userManager
         }
 
         // GET: LostDogReports
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.LostDogReports.ToListAsync());
+            if (User.Identity.IsAuthenticated)
+            {
+                ViewBag.CurrentUserId = _userManager.GetUserId(User);
+            }
+
+            var reports = await _context.LostDogReports.ToListAsync();
+            return View(reports);
         }
 
+
         // GET: LostDogReports/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -44,28 +58,30 @@ namespace LostDogApp.Controllers
         }
 
         // GET: LostDogReports/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: LostDogReports/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DogName,Description,Latitude,Longitude,UserId")] LostDogReport lostDogReport)
+        public async Task<IActionResult> Create(LostDogReport model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(lostDogReport);
+                model.UserId = _userManager.GetUserId(User);
+                _context.Add(model);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(lostDogReport);
+            return View(model);
         }
 
         // GET: LostDogReports/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,50 +89,66 @@ namespace LostDogApp.Controllers
                 return NotFound();
             }
 
-            var lostDogReport = await _context.LostDogReports.FindAsync(id);
-            if (lostDogReport == null)
+            var report = await _context.LostDogReports.FindAsync(id);
+            if (report == null)
             {
                 return NotFound();
             }
-            return View(lostDogReport);
+
+            var userId = _userManager.GetUserId(User);
+            if (report.UserId != userId)
+            {
+                return Forbid();
+            }
+
+            return View(report);
         }
 
         // POST: LostDogReports/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: LostDogReports/Edit/5
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DogName,Description,Latitude,Longitude,UserId")] LostDogReport lostDogReport)
+        public async Task<IActionResult> Edit(int id, LostDogReport model)
         {
-            if (id != lostDogReport.Id)
+            if (id != model.Id)
             {
                 return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+            var report = await _context.LostDogReports.FindAsync(id);
+            if (report == null || report.UserId != userId)
+            {
+                return Forbid();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(lostDogReport);
+                    report.DogName = model.DogName;
+                    report.Description = model.Description;
+                    report.Latitude = model.Latitude;
+                    report.Longitude = model.Longitude;
+                    _context.Update(report);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LostDogReportExists(lostDogReport.Id))
+                    if (!LostDogReportExists(model.Id))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(lostDogReport);
+            return View(model);
         }
 
         // GET: LostDogReports/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,29 +156,48 @@ namespace LostDogApp.Controllers
                 return NotFound();
             }
 
-            var lostDogReport = await _context.LostDogReports
+            var report = await _context.LostDogReports
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (lostDogReport == null)
+            if (report == null)
             {
                 return NotFound();
             }
 
-            return View(lostDogReport);
+            var userId = _userManager.GetUserId(User);
+            if (report.UserId != userId)
+            {
+                return Forbid();
+            }
+
+            return View(report);
         }
 
         // POST: LostDogReports/Delete/5
         [HttpPost, ActionName("Delete")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lostDogReport = await _context.LostDogReports.FindAsync(id);
-            if (lostDogReport != null)
+            var report = await _context.LostDogReports.FindAsync(id);
+            if (report == null)
             {
-                _context.LostDogReports.Remove(lostDogReport);
+                return NotFound();
             }
 
+            var userId = _userManager.GetUserId(User);
+            if (report.UserId != userId)
+            {
+                return Forbid();
+            }
+
+            _context.LostDogReports.Remove(report);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool LostDogReportExists(int id)
+        {
+            return _context.LostDogReports.Any(e => e.Id == id);
         }
 
         private bool LostDogReportExists(int id)

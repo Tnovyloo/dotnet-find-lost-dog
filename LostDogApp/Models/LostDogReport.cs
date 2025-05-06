@@ -8,6 +8,8 @@ namespace LostDogApp.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
-        public string UserId { get; set; }
+            
+        public string UserId { get; set; } // Foreign key to ApplicationUser
+        public ApplicationUser User { get; set; } // Optional navigation property
     }
 }
