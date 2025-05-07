@@ -68,7 +68,7 @@ namespace LostDogApp.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LostDogReport model)
+        public async Task<IActionResult> Create(LostDogReportViewModel model)
         {
 
             string? userId = _userManager.GetUserId(User);
@@ -84,22 +84,73 @@ namespace LostDogApp.Controllers
 
             ModelState.Remove("User");
             ModelState.Remove("UserId");
+            ModelState.Remove("ImagePath");
 
             if (ModelState.IsValid)
-            {
-                model.UserId = userId;
-                Console.WriteLine($"Creating report for user: {model.UserId}"); // Add logging
+            {   
+                if (model.ImageFile.Length > 10 * 1024 * 1024) // 10MB limit
+                {
+                    ModelState.AddModelError("ImageFile", "File size cannot exceed 10MB");
+                    return View(model);
+                }
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var extension = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("ImageFile", "Only image files (JPG, PNG, GIF) are allowed.");
+                    return View(model);
+                }
+
+                string imagePath = null;
+                string fileName = null;
+                string contentType = null;
+
+                if (model.ImageFile != null && model.ImageFile.Length > 0) 
+                {
+                    // Create unique name
+                    fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                    contentType = model.ImageFile.ContentType;
+
+                    // Set path to save (in wwwroot/images)
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "dogs");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    // Create the full file path
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    // Save the file
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ImageFile.CopyToAsync(fileStream);
+                    }
+
+                    // Store relative path for web access
+                    imagePath = $"/images/dogs/{fileName}";
+                }
+
+                LostDogReport report = new LostDogReport
+                {
+                    DogName = model.DogName,
+                    Description = model.Description,
+                    Latitude = model.Latitude,
+                    Longitude = model.Longitude,
+                    UserId = userId,
+                    ImagePath = imagePath,
+                    ImageFileName = fileName,
+                    ImageContentType = contentType,
+                };
                 
-                _context.Add(model);
+                _context.Add(report);
                 try
                 {
                     await _context.SaveChangesAsync();
-                    Console.WriteLine("Report created successfully"); // Add logging
+                    Console.WriteLine("Report created successfully");
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error creating report: {ex.Message}"); // Add logging
+                    Console.WriteLine($"Error creating report: {ex.Message}");
                     ModelState.AddModelError("", "An error occurred while saving the report.");
                 }
             }
@@ -108,6 +159,7 @@ namespace LostDogApp.Controllers
 
         // GET: LostDogReports/Edit/5
         [Authorize]
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -127,38 +179,101 @@ namespace LostDogApp.Controllers
                 return Forbid();
             }
 
-            return View(report);
+            // Convert to ViewModel
+            var viewModel = new LostDogReportViewModel
+            {
+                Id = report.Id,
+                DogName = report.DogName,
+                Description = report.Description,
+                Latitude = report.Latitude,
+                Longitude = report.Longitude,
+                ImagePath = report.ImagePath
+            };
+
+            return View(viewModel);
         }
 
         // POST: LostDogReports/Edit/5
-        // POST: LostDogReports/Edit/5
-        [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, LostDogReport model)
+        [HttpPost("Edit/{id}")]
+        public async Task<IActionResult> Edit(int id, LostDogReportViewModel model, bool removeImage = false)
         {
             if (id != model.Id)
             {
                 return NotFound();
             }
 
-            var userId = _userManager.GetUserId(User);
-            var report = await _context.LostDogReports.FindAsync(id);
-            if (report == null || report.UserId != userId)
+            var existingReport = await _context.LostDogReports.FindAsync(id);
+            if (existingReport == null)
+            {
+                return NotFound();
+            }
+
+            var currentUserId = _userManager.GetUserId(User);
+            if (existingReport.UserId != currentUserId)
             {
                 return Forbid();
             }
+
+            // Handle image removal
+            if (removeImage && !string.IsNullOrEmpty(existingReport.ImagePath))
+            {
+                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingReport.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+                existingReport.ImagePath = null;
+                existingReport.ImageFileName = null;
+                existingReport.ImageContentType = null;
+            }
+
+            // Handle new image upload
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                // Delete old image if it exists
+                if (!string.IsNullOrEmpty(existingReport.ImagePath))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingReport.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                // Process new image
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "dogs");
+                Directory.CreateDirectory(uploadsFolder);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(fileStream);
+                }
+
+                existingReport.ImagePath = $"/images/dogs/{fileName}";
+                existingReport.ImageFileName = fileName;
+                existingReport.ImageContentType = model.ImageFile.ContentType;
+            }
+
+            // Update other fields
+            existingReport.DogName = model.DogName;
+            existingReport.Description = model.Description;
+            existingReport.Latitude = model.Latitude;
+            existingReport.Longitude = model.Longitude;
+
+            ModelState.Remove("UserId");
+            ModelState.Remove("User");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    report.DogName = model.DogName;
-                    report.Description = model.Description;
-                    report.Latitude = model.Latitude;
-                    report.Longitude = model.Longitude;
-                    _context.Update(report);
+                    _context.Update(existingReport);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -168,8 +283,10 @@ namespace LostDogApp.Controllers
                     }
                     throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // If we got here, something went wrong
+            model.ImagePath = existingReport.ImagePath; // Preserve image path
             return View(model);
         }
 

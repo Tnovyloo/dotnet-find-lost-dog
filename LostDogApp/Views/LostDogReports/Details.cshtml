@@ -40,6 +40,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.UserId)
         </dd>
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <div class="form-group">
+                <img src="@Model.ImagePath" alt="Dog photo" class="img-thumbnail" style="max-height: 300px;" />
+            </div>
+        }
     </dl>
 </div>
 <div>

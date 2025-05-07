@@ -3,6 +3,7 @@ using LostDogApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,13 @@ builder.Services.AddDataProtection()
     .PersistKeysToDbContext<ApplicationDbContext>()
     .SetApplicationName("LostDogApp");
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB file size limit
+    options.ValueLengthLimit = int.MaxValue; // No limit on individual values
+    options.MultipartHeadersLengthLimit = int.MaxValue; // No limit on headers
+    options.MemoryBufferThreshold = Int32.MaxValue; // Use disk for buffering large files
+});
 
 builder.Services.AddControllersWithViews();
 
