@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LostDogApp.Models
+namespace LostDogApp.Models.LostDogReportViewModels
 {
 
-    public class LostDogReportViewModel
+    public class UpdateViewModel
     {
         public int Id { get; set; }
         
@@ -11,6 +11,9 @@ namespace LostDogApp.Models
         public string DogName { get; set; }
         
         public string Description { get; set; }
+
+        [Required]
+        public required string ContactNumber { get; set; }
         
         [Required]
         public double Latitude { get; set; }
@@ -19,8 +22,8 @@ namespace LostDogApp.Models
         public double Longitude { get; set; }
         
         [Display(Name = "Dog Photo")]
-        public IFormFile ImageFile { get; set; }  // For file upload
+        public IFormFile? ImageFile { get; set; }  // For file upload
         
-        public string ImagePath { get; set; } // To store and show existing path.
+        public string? ImagePath { get; set; } // To store and show existing path.
     }
 }

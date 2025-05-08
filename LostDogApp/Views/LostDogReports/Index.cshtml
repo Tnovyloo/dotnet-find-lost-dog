@@ -4,19 +4,27 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Wszystkie zgubione pupile</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Stwórz ogłoszenie</a>
 </p>
+
+<div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DogName)
+                Zdjecie
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @* @Html.DisplayNameFor(model => model.DogName) *@
+                Imie psa
+            </th>
+            <th>
+                @* @Html.DisplayNameFor(model => model.Description) *@
+                Opis
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Latitude)
@@ -25,7 +33,7 @@
                 @Html.DisplayNameFor(model => model.Longitude)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UserId)
+                Numer kontaktowy
             </th>
             <th></th>
         </tr>
@@ -33,6 +41,9 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                <img src="@Html.DisplayFor(modelItem => item.ImagePath)" alt="" style="height: 100px;"> 
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DogName)
             </td>
@@ -46,14 +57,65 @@
                 @Html.DisplayFor(modelItem => item.Longitude)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UserId)
+                @Html.DisplayFor(modelItem => item.ContactNumber)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @* <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | *@
+                <a asp-action="Details" asp-route-id="@item.Id">Szczegóły</a>
+                @* <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+@section Scripts {
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 2); // Default view
+
+        // Add tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var bounds = [];
+
+        // Dog marker data from Razor
+        var dogReports = [
+            @foreach (var dog in Model)
+            {
+                if (dog.Latitude != 0 && dog.Longitude != 0)
+                {
+                    var detailsUrl = Url.Action("Details", "LostDogReports", new { id = dog.Id });
+
+                    <text>
+                    {
+                        lat: @dog.Latitude,
+                        lng: @dog.Longitude,
+                        name: "@dog.DogName",
+                        description: "@dog.Description",
+                        image_path: "@dog.ImagePath",
+                        details_url: "@detailsUrl",
+                    },
+                    </text>
+                }
+            }
+        ];
+
+        // Add markers
+        dogReports.forEach(function (report) {
+            var marker = L.marker([report.lat, report.lng])
+                .addTo(map)
+                .bindPopup(`<img style="height: 100px" src="${report.image_path}" ></img><strong>` + report.name + "</strong><br/>" + report.description + `<a href="${report.details_url}">Zobacz ogłoszenie</a>`);
+            bounds.push([report.lat, report.lng]);
+        });
+
+        // Fit map to markers
+        if (bounds.length > 0) {
+            map.fitBounds(bounds);
+        }
+    </script>
+}

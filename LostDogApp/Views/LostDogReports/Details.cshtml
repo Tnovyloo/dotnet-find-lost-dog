@@ -1,54 +1,94 @@
-@model LostDogApp.Models.LostDogReport
+@model LostDogApp.Models.LostDogReportViewModels.DetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Szczegóły</h1>
 
 <div>
-    <h4>LostDogReport</h4>
+    <h4>zgubionego pupila</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DogName)
+            @* @Html.DisplayNameFor(model => model.DogName) *@
+            Imię psa
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DogName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @* @Html.DisplayNameFor(model => model.Description) *@
+            Opis
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Latitude)
+            @* @Html.DisplayNameFor(model => model.Latitude) *@
+            Szerokość geograficzna
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Latitude)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Longitude)
+            @* @Html.DisplayNameFor(model => model.Longitude) *@
+            Dlugość geograficzna
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Longitude)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
+            @* @Html.DisplayNameFor(model => model.UserName) *@
+            Uzytkownik
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserId)
+            @Html.DisplayFor(model => model.UserName)
         </dd>
+
+        <dt class = "col-sm-2">
+            @* @Html.DisplayNameFor(model => model.ContactNumber) *@
+            Numer kontaktowy
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ContactNumber)
+        </dd>
+        
         @if (!string.IsNullOrEmpty(Model.ImagePath))
         {
             <div class="form-group">
                 <img src="@Model.ImagePath" alt="Dog photo" class="img-thumbnail" style="max-height: 300px;" />
             </div>
         }
+
+        <div id="map" style="height: 400px;"></div>
+
     </dl>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    <script>
+        // Get the latitude and longitude values from the model
+        var latitude = @Model.Latitude;
+        var longitude = @Model.Longitude;
+
+        // If the coordinates exist, initialize the map
+        if (latitude && longitude) {
+            var map = L.map('map').setView([latitude, longitude], 13);
+
+            // Set the tile layer (OpenStreetMap tiles)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker for the given coordinates
+            L.marker([latitude, longitude]).addTo(map)
+                .bindPopup("<b>Lokalizacja zgubionego pupila</b><br />" + "Latitude: " + latitude + "<br />" + "Longitude: " + longitude)
+                .openPopup();
+        }
+    </script>
+}

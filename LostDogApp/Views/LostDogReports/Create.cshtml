@@ -1,4 +1,4 @@
-@model LostDogApp.Models.LostDogReportViewModel
+@model LostDogApp.Models.LostDogReportViewModels.ReportViewModel
 
 @{
     ViewData["Title"] = "Create Lost Dog Report";
@@ -38,19 +38,32 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="ContactNumber" class="control-label"></label>
+                <input asp-for="ContactNumber" class="form-control"></input>
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Latitude" class="control-label"></label>
-                <input asp-for="Latitude" class="form-control" />
+                <input asp-for="Latitude" class="form-control" id="latitude"/>
                 <span asp-validation-for="Latitude" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Longitude" class="control-label"></label>
-                <input asp-for="Longitude" class="form-control" />
+                <input asp-for="Longitude" class="form-control" id="longitude"/>
                 <span asp-validation-for="Longitude" class="text-danger"></span>
             </div>
+            @* <input asp-for="Latitude" class="form-control" id="latitude" />
+            <input asp-for="Longitude" class="form-control" id="longitude" /> *@
+
             <div class="form-group">
                 <label asp-for="ImageFile" class="control-label"></label>
                 <input type="file" asp-for="ImageFile" class="form-control" />
                 <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Wybierz lokalizacje na mapie</label>
+                <div id="map" style="height: 300px;" class="mb-3"></div>
             </div>
 
             <div class="form-group mt-3">
@@ -66,4 +79,30 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var map = L.map('map').setView([52.2297, 21.0122], 13); // Default: Warsaw
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+
+        map.on('click', function (e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+
+            // Set input values
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            // Update or add marker
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+        });
+    </script>
 }

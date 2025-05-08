@@ -9,6 +9,7 @@ using LostDogApp.Data;
 using LostDogApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using LostDogApp.Models.LostDogReportViewModels;
 
 namespace LostDogApp.Controllers
 {
@@ -48,13 +49,28 @@ namespace LostDogApp.Controllers
             }
 
             var lostDogReport = await _context.LostDogReports
+                .Include(r => r.User) // if you need user data
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (lostDogReport == null)
             {
                 return NotFound();
             }
 
-            return View(lostDogReport);
+            System.Console.WriteLine(lostDogReport.ImagePath);
+
+            var viewModel = new DetailsViewModel
+            {
+                DogName = lostDogReport.DogName,
+                Description = lostDogReport.Description,
+                ImagePath = lostDogReport.ImagePath,
+                Latitude = lostDogReport.Latitude,
+                Longitude = lostDogReport.Longitude,
+                ContactNumber = lostDogReport.ContactNumber,
+                UserName = lostDogReport.User?.UserName // if needed
+            };
+
+            return View(viewModel);
         }
 
         // GET: LostDogReports/Create
@@ -68,7 +84,7 @@ namespace LostDogApp.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LostDogReportViewModel model)
+        public async Task<IActionResult> Create(ReportViewModel model)
         {
 
             string? userId = _userManager.GetUserId(User);
@@ -84,7 +100,6 @@ namespace LostDogApp.Controllers
 
             ModelState.Remove("User");
             ModelState.Remove("UserId");
-            ModelState.Remove("ImagePath");
 
             if (ModelState.IsValid)
             {   
@@ -127,6 +142,7 @@ namespace LostDogApp.Controllers
 
                     // Store relative path for web access
                     imagePath = $"/images/dogs/{fileName}";
+                    model.ImagePath = imagePath;
                 }
 
                 LostDogReport report = new LostDogReport
@@ -139,8 +155,9 @@ namespace LostDogApp.Controllers
                     ImagePath = imagePath,
                     ImageFileName = fileName,
                     ImageContentType = contentType,
+                    ContactNumber = model.ContactNumber
                 };
-                
+
                 _context.Add(report);
                 try
                 {
@@ -180,14 +197,15 @@ namespace LostDogApp.Controllers
             }
 
             // Convert to ViewModel
-            var viewModel = new LostDogReportViewModel
+            var viewModel = new UpdateViewModel
             {
                 Id = report.Id,
                 DogName = report.DogName,
                 Description = report.Description,
                 Latitude = report.Latitude,
                 Longitude = report.Longitude,
-                ImagePath = report.ImagePath
+                ImagePath = report.ImagePath,
+                ContactNumber = report.ContactNumber,
             };
 
             return View(viewModel);
@@ -197,7 +215,7 @@ namespace LostDogApp.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost("Edit/{id}")]
-        public async Task<IActionResult> Edit(int id, LostDogReportViewModel model, bool removeImage = false)
+        public async Task<IActionResult> Edit(int id, UpdateViewModel model, bool removeImage = false)
         {
             if (id != model.Id)
             {
@@ -214,6 +232,11 @@ namespace LostDogApp.Controllers
             if (existingReport.UserId != currentUserId)
             {
                 return Forbid();
+            }
+
+            if (model.ImageFile == null)
+            {
+                ModelState.Remove(nameof(model.ImageFile));
             }
 
             // Handle image removal
@@ -263,6 +286,7 @@ namespace LostDogApp.Controllers
             existingReport.Description = model.Description;
             existingReport.Latitude = model.Latitude;
             existingReport.Longitude = model.Longitude;
+            existingReport.ContactNumber = model.ContactNumber;
 
             ModelState.Remove("UserId");
             ModelState.Remove("User");

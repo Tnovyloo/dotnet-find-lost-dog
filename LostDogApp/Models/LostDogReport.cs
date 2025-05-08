@@ -7,6 +7,8 @@ namespace LostDogApp.Models
         public string Description { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        
+        public string ContactNumber { get; set; }
 
         // Image properties
         public string ImagePath { get; set; }  // Stores the file path
