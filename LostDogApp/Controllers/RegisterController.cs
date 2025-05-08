@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using LostDogApp.Models;
+using LostDogApp.ViewModels;
 
 public class RegisterController : Controller
 {
@@ -32,7 +33,7 @@ public class RegisterController : Controller
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");  // Redirect to Home or Reports page
+                return RedirectToAction("Index", "LostDogReports");
             }
             else
             {

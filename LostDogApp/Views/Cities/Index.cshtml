@@ -1,0 +1,44 @@
+@model IEnumerable<LostDogApp.Models.City> 
+
+@{
+    ViewData["Title"] = "Cities";
+}
+
+<h1>Miasta</h1>
+
+<p>Kliknij aby wlaczyc seedera miast:</p>
+
+<form method="post" action="@Url.Action("SeedCities", "Cities")">
+    <button type="submit" class="btn btn-primary">Seed</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nazwa</th>
+            <th>Wojewodztwo</th>
+            <th>Longitude</th>
+            <th>Latitude</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var city in Model)
+        {
+            <tr>
+                <td>@city.Id</td>
+                <td>@city.Name</td>
+                <td>@city.Voivodeship</td>
+                <td>@city.Longitude</td>
+                <td>@city.Latitude</td>
+                <td>
+                    <a href="@Url.Action("Details", "Cities", new { id = city.Id })">Szczegoly</a> |
+                    <a href="@Url.Action("Edit", "Cities", new { id = city.Id })">Edycja</a> |
+                    <a href="@Url.Action("Delete", "Cities", new { id = city.Id })">Usun</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Cities")" class="btn btn-primary">Create New City</a>

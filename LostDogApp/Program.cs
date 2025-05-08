@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Features;
+using LostDogApp.Models;
+using LostDogApp.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,14 +46,14 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
+app.UseRouting();   
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=LostDogReports}/{action=Index}/{id?}");
 
 
 app.Run();

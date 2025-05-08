@@ -3,6 +3,7 @@ using System;
 using LostDogApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LostDogApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508201714_CityModelCreated")]
+    partial class CityModelCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,8 +325,7 @@ namespace LostDogApp.Migrations
                 {
                     b.HasOne("LostDogApp.Models.City", "City")
                         .WithMany("LostDogReports")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CityId");
 
                     b.HasOne("LostDogApp.Models.ApplicationUser", "User")
                         .WithMany("LostDogReports")

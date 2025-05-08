@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using LostDogApp.ViewModels;
 using LostDogApp.Models;
 
 public class LoginController : Controller
@@ -28,7 +29,7 @@ public class LoginController : Controller
 
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "Home");  // Redirect to Home or Reports page
+                return RedirectToAction("Index", "LostDogReports");
             }
             else
             {

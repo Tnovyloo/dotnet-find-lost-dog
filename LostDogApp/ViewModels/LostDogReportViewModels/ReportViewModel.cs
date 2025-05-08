@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LostDogApp.Models.LostDogReportViewModels
+namespace LostDogApp.ViewModels.LostDogReportViewModels
 {
 
     public class ReportViewModel

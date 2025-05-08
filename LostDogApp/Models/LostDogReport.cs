@@ -7,7 +7,7 @@ namespace LostDogApp.Models
         public string Description { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        
+
         public string ContactNumber { get; set; }
 
         // Image properties
@@ -17,5 +17,8 @@ namespace LostDogApp.Models
             
         public string UserId { get; set; } // Foreign key to ApplicationUser
         public ApplicationUser User { get; set; } // Optional navigation property
+
+        public int? CityId { get; set; }
+        public City City { get; set; }
     }
 }

@@ -4,21 +4,23 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<h1>Usuwanie</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Jesteś pewny usunięcia?</h3>
 <div>
-    <h4>LostDogReport</h4>
+    <h4>Zgubiony pupil</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DogName)
+            @* @Html.DisplayNameFor(model => model.DogName) *@
+            Imie psa
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DogName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @* @Html.DisplayNameFor(model => model.Description) *@
+            Opis
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Description)
@@ -35,17 +37,24 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Longitude)
         </dd>
-        <dt class = "col-sm-2">
+        @* <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.UserId)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.UserId)
-        </dd>
+        </dd> *@
+
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <div class="form-group">
+                <img src="@Model.ImagePath" alt="Dog photo" class="img-thumbnail" style="max-height: 300px;" />
+            </div>
+        }
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Usuń" class="btn btn-danger" /> |
+        <a asp-action="Index">Wróć do konta</a>
     </form>
 </div>

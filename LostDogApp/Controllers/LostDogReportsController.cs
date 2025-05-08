@@ -9,14 +9,16 @@ using LostDogApp.Data;
 using LostDogApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using LostDogApp.Models.LostDogReportViewModels;
+using LostDogApp.ViewModels.LostDogReportViewModels;
+using LostDogApp.Models;
+using LostDogApp.Utils;
 
 namespace LostDogApp.Controllers
 {
     public class LostDogReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager; // Add UserManager here
+        private readonly UserManager<ApplicationUser> _userManager;
 
         // Inject UserManager<ApplicationUser> into the constructor
         public LostDogReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
@@ -34,7 +36,10 @@ namespace LostDogApp.Controllers
                 ViewBag.CurrentUserId = _userManager.GetUserId(User);
             }
 
-            var reports = await _context.LostDogReports.ToListAsync();
+            var reports = await _context.LostDogReports
+                .Include(r => r.City)
+                .ToListAsync();
+
             return View(reports);
         }
 
@@ -145,6 +150,18 @@ namespace LostDogApp.Controllers
                     model.ImagePath = imagePath;
                 }
 
+                var allCities = await _context.Cities.ToListAsync();
+                var nearestCity = allCities
+                    .Select(c => new
+                    {
+                        City = c,
+                        Distance = GeoUtils.CalculateHaversineDistance(
+                            model.Latitude, model.Longitude,
+                            c.Latitude, c.Longitude)
+                    })
+                    .OrderBy(x => x.Distance)
+                    .FirstOrDefault();
+
                 LostDogReport report = new LostDogReport
                 {
                     DogName = model.DogName,
@@ -155,7 +172,8 @@ namespace LostDogApp.Controllers
                     ImagePath = imagePath,
                     ImageFileName = fileName,
                     ImageContentType = contentType,
-                    ContactNumber = model.ContactNumber
+                    ContactNumber = model.ContactNumber,
+                    CityId = nearestCity?.City.Id,
                 };
 
                 _context.Add(report);
@@ -212,6 +230,7 @@ namespace LostDogApp.Controllers
         }
 
         // POST: LostDogReports/Edit/5
+        // TODO Make it to change City and Voivodeship while updating
         [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost("Edit/{id}")]

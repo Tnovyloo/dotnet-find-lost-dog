@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LostDogApp.Models
+namespace LostDogApp.ViewModels
 {
     public class LoginViewModel
     {

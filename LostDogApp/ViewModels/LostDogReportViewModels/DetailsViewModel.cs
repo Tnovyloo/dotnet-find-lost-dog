@@ -1,4 +1,4 @@
-namespace LostDogApp.Models.LostDogReportViewModels {
+namespace LostDogApp.ViewModels.LostDogReportViewModels {
     public class DetailsViewModel
     {
         public int Id { get; set; }
