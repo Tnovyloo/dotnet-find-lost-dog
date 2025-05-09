@@ -279,7 +279,10 @@ namespace LostDogApp.Controllers
                 return NotFound();
             }
 
-            var report = await _context.LostDogReports.FindAsync(id);
+            var report = await _context.LostDogReports
+                .Include(r => r.City)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (report == null)
             {
                 return NotFound();
