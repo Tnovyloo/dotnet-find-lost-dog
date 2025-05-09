@@ -206,6 +206,69 @@ namespace LostDogApp.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SeedDogs()
+        {
+            // Ensure city exists
+            var city = await _context.Cities.FirstOrDefaultAsync(c => c.Name == "Tokyo");
+            if (city == null)
+            {
+                city = new City
+                {
+                    Name = "Tokyo",
+                    Voivodeship = "Japan",
+                    Latitude = 35.652832,
+                    Longitude = 139.839478
+                };
+                _context.Cities.Add(city);
+                await _context.SaveChangesAsync();
+            }
+
+            // Ensure user exists
+            var userEmail = "seeder@example.com";
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = "seeder",
+                    Email = userEmail,
+                    EmailConfirmed = true
+                };
+                var result = await _userManager.CreateAsync(user, "Seeder123!");
+                if (!result.Succeeded)
+                {
+                    return Content("Failed to create seed user");
+                }
+            }
+
+            // Seed 3 lost dogs
+            for (int i = 1; i <= 3; i++)
+            {
+                var report = new LostDogReport
+                {
+                    DogName = $"Piesek {i}",
+                    Description = $"Opis zagubionego psa nr {i}.",
+                    Latitude = city.Latitude + (i * 0.001),
+                    Longitude = city.Longitude + (i * 0.001),
+                    UserId = user.Id,
+                    ImagePath = "/images/dogs/default.png", // Make sure default image exists
+                    ImageFileName = "default.png",
+                    ImageContentType = "image/png",
+                    ContactNumber = "123-456-789",
+                    CityId = city.Id
+                };
+
+                _context.LostDogReports.Add(report);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
         // GET: LostDogReports/Edit/5
         [Authorize]
         [HttpGet("Edit/{id}")]
@@ -244,7 +307,6 @@ namespace LostDogApp.Controllers
         }
 
         // POST: LostDogReports/Edit/5
-        // TODO Make it to change City and Voivodeship while updating
         [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost("Edit/{id}")]
@@ -314,6 +376,21 @@ namespace LostDogApp.Controllers
                 existingReport.ImageContentType = model.ImageFile.ContentType;
             }
 
+            if (existingReport.Longitude != model.Longitude && existingReport.Latitude != model.Latitude) {
+                var allCities = await _context.Cities.ToListAsync();
+                    var nearestCity = allCities
+                        .Select(c => new
+                        {
+                            City = c,
+                            Distance = GeoUtils.CalculateHaversineDistance(
+                                model.Latitude, model.Longitude,
+                                c.Latitude, c.Longitude)
+                        })
+                        .OrderBy(x => x.Distance)
+                        .FirstOrDefault();
+                existingReport.CityId = nearestCity?.City.Id;
+            }
+
             // Update other fields
             existingReport.DogName = model.DogName;
             existingReport.Description = model.Description;
@@ -343,7 +420,7 @@ namespace LostDogApp.Controllers
             }
 
             // If we got here, something went wrong
-            model.ImagePath = existingReport.ImagePath; // Preserve image path
+            model.ImagePath = existingReport.ImagePath;
             return View(model);
         }
 

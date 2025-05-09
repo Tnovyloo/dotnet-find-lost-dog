@@ -22,8 +22,8 @@ namespace LostDogApp.ViewModels.LostDogReportViewModels
         public double Longitude { get; set; }
         
         [Display(Name = "Dog Photo")]
-        public IFormFile? ImageFile { get; set; }  // For file upload
-        
-        public string? ImagePath { get; set; } // To store and show existing path.
+        public IFormFile? ImageFile { get; set; }
+        public string? ImagePath { get; set; }
+        public int? CityId { get; set; }
     }
 }

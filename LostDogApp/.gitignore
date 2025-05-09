@@ -43,7 +43,8 @@ docker-compose.*
 .dockerignore
 
 # Publish output
-wwwroot/
+wwwroot/images/dogs/*
+!wwwroot/images/dogs/default.png
 publish/
 *.pubxml
 
