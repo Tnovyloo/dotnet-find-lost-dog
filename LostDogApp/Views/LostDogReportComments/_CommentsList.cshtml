@@ -1,0 +1,39 @@
+@* @model IEnumerable<LostDogApp.Models.LostDogReportComment>
+@using System.Linq
+
+@foreach (var c in Model.OrderByDescending(x => x.CreatedAt))
+{
+    <div class="border p-2 mb-2">
+        <strong>@(c.User?.UserName ?? "Anonim"):</strong> @c.Content
+        <div class="text-muted small">@c.CreatedAt.ToLocalTime():g</div>
+    </div>
+} *@
+
+
+@model IEnumerable<LostDogApp.Models.LostDogReportComment>
+@using System.Linq
+@using System.Security.Claims
+
+@foreach (var c in Model.OrderByDescending(x => x.CreatedAt))
+{
+    <div class="border p-2 mb-2">
+        <strong>@(c.User?.UserName ?? "Anonim"):</strong> @c.Content
+        <div class="text-muted small">@c.CreatedAt.ToLocalTime():g</div>
+
+        @* Only the comment’s author can delete *@
+        @if (User.Identity?.IsAuthenticated == true 
+             && c.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            <form asp-controller="LostDogReportComments"
+                  asp-action="Delete"
+                  asp-route-id="@c.Id"
+                  method="post"
+                  class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-danger">
+                    Usuń
+                </button>
+            </form>
+        }
+    </div>
+}

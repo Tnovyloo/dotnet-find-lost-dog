@@ -1,0 +1,39 @@
+@model LostDogApp.Models.LostDogReportComment
+
+@{
+    ViewData["Title"] = "Dodaj komentarz";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <h5>Please fix the following errors:</h5>
+        <ul>
+            @foreach (var key in ViewData.ModelState.Keys)
+            {
+                foreach (var error in ViewData.ModelState[key].Errors)
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <!-- Hidden carries the report we're commenting on -->
+    <input asp-for="LostDogReportId" type="hidden" />
+
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Wyślij</button>
+    <a asp-action="Index" asp-route-reportId="@Model.LostDogReportId" class="btn btn-secondary">
+        Anuluj
+    </a>
+</form>

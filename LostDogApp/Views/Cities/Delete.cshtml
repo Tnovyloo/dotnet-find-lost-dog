@@ -1,0 +1,31 @@
+@model LostDogApp.ViewModels.CityViewModels.CityViewModel;
+
+@{
+    ViewData["Title"] = "Usun miasto";
+}
+
+<h1>Usun miasto</h1>
+
+<h3>Czy jestes pewny co do usuniecia miasta?</h3>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Voivodeship</dt>
+        <dd class="col-sm-10">@Model.Voivodeship</dd>
+
+        <dt class="col-sm-2">Latitude</dt>
+        <dd class="col-sm-10">@Model.Latitude</dd>
+
+        <dt class="col-sm-2">Longitude</dt>
+        <dd class="col-sm-10">@Model.Longitude</dd>
+    </dl>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usun</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

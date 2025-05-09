@@ -63,6 +63,16 @@
 
         <div id="map" style="height: 400px;"></div>
 
+        <a asp-controller="LostDogReportComments"
+            asp-action="Create"
+            asp-route-reportId="@Model.Id"
+            class="btn btn-outline-primary"
+            style="margin-top: 1rem; margin-bottom: 1rem;">
+            Dodaj komentarz
+        </a>
+
+        @await Html.PartialAsync("~/Views/LostDogReportComments/_CommentsList.cshtml", Model.Comments)
+
     </dl>
 </div>
 @* <div>

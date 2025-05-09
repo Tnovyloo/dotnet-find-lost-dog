@@ -1,4 +1,4 @@
-@model IEnumerable<LostDogApp.Models.LostDogReport>
+@model LostDogApp.ViewModels.LostDogReportViewModels.IndexFilterViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -11,6 +11,38 @@
 </p>
 
 <div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="dogNameQuery" value="@Model.DogNameQuery" class="form-control" placeholder="Imię psa" />
+    </div>
+    <div class="col-md-3">
+        <select name="selectedVoivodeship" class="form-select">
+            <option value="">-- Województwo --</option>
+            @foreach (var v in Model.AvailableVoivodeships)
+            {
+                <option value="@v" selected="@(v == Model.SelectedVoivodeship)">
+                    @v
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="selectedCity" class="form-select">
+            <option value="">-- Miasto --</option>
+            @foreach (var c in Model.AvailableCities)
+            {
+                <option value="@c" selected="@(c == Model.SelectedCity)">
+                    @c
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Filtruj</button>
+        <a type="" class="btn btn-danger" asp-controller="LostDogReports" asp-action="Index">Usun</a>
+    </div>
+</form>
 
 <table class="table">
     <thead>
@@ -27,10 +59,10 @@
                 Opis
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Latitude)
+                Sz. Geograficzna
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Longitude)
+                Dł. Geograficzna
             </th>
             <th>
                 Numer kontaktowy
@@ -41,7 +73,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Reports) {
         <tr>
             <td>
                 <img src="@Html.DisplayFor(modelItem => item.ImagePath)" alt="" style="height: 100px;"> 
@@ -89,7 +121,7 @@
 
         // Dog marker data from Razor
         var dogReports = [
-            @foreach (var dog in Model)
+            @foreach (var dog in Model.Reports)
             {
                 if (dog.Latitude != 0 && dog.Longitude != 0)
                 {

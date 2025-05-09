@@ -6,6 +6,8 @@ namespace LostDogApp.Models {
     {
         public ICollection<LostDogReport> LostDogReports { get; set; }
 
+        public ICollection<LostDogReportComment> LostDogReportComments { get; set; }
+
     }
 }
 

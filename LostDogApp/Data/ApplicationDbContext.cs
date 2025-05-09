@@ -15,6 +15,7 @@ namespace LostDogApp.Data
 
         public DbSet<LostDogReport> LostDogReports { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<LostDogReportComment> LostDogReportComments { get; set; }
 
 
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
@@ -29,11 +30,23 @@ namespace LostDogApp.Data
                     .HasForeignKey(r => r.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                modelBuilder.Entity<LostDogReport>()
-                    .HasOne(r => r.City)
-                    .WithMany(c => c.LostDogReports)
-                    .HasForeignKey(r => r.CityId)
-                    .OnDelete(DeleteBehavior.Cascade); 
+            modelBuilder.Entity<LostDogReport>()
+                .HasOne(r => r.City)
+                .WithMany(c => c.LostDogReports)
+                .HasForeignKey(r => r.CityId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
+            modelBuilder.Entity<LostDogReportComment>()
+                .HasOne(c => c.LostDogReport)
+                .WithMany(r => r.Comments)
+                .HasForeignKey(c => c.LostDogReportId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LostDogReportComment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.LostDogReportComments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

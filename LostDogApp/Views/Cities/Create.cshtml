@@ -1,0 +1,99 @@
+@model LostDogApp.ViewModels.CityViewModels.CityViewModel
+
+@{
+    ViewData["Title"] = "Stwórz miasto";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <h5>Proszę poprawić następujące błędy:</h5>
+        <ul>
+            @foreach (var key in ViewData.ModelState.Keys)
+            {
+                foreach (var error in ViewData.ModelState[key].Errors)
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Name">Nazwa</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Voivodeship">Wojewodztwo</label>
+        <input asp-for="Voivodeship" class="form-control" />
+        <span asp-validation-for="Voivodeship" class="text-danger"></span>
+    </div>
+
+    <!-- Map container -->
+    <div class="form-group">
+        <label>Wskaż położenie na mapie:</label>
+        <div id="map" style="height: 400px; margin-bottom: 1rem;"></div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Latitude"></label>
+        <input asp-for="Latitude" class="form-control" readonly />
+        <span asp-validation-for="Latitude" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Longitude"></label>
+        <input asp-for="Longitude" class="form-control" readonly />
+        <span asp-validation-for="Longitude" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Stwórz</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>
+
+@section Scripts {
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([52.0, 19.0], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+
+        // On map click, set marker and populate inputs
+        map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+
+            // If marker exists, move it; otherwise create it
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+                // allow drag to adjust
+                marker.on('dragend', function(ev) {
+                    var p = ev.target.getLatLng();
+                    setInputs(p.lat, p.lng);
+                });
+            }
+
+            setInputs(lat, lng);
+        });
+
+        function setInputs(lat, lng) {
+            document.getElementById('Latitude').value = lat;
+            document.getElementById('Longitude').value = lng;
+        }
+    </script>
+}

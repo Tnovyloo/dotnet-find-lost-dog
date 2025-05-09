@@ -9,5 +9,7 @@ namespace LostDogApp.ViewModels.LostDogReportViewModels {
         public double? Longitude { get; set; }
         public string ContactNumber { get; set; }
         public string? UserName { get; set; }
+
+        public List<LostDogApp.Models.LostDogReportComment> Comments { get; set; } = new();
     }
 }

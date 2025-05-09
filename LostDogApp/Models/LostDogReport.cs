@@ -1,3 +1,5 @@
+using LostDogApp.Models;
+
 namespace LostDogApp.Models
 {
     public class LostDogReport
@@ -15,10 +17,13 @@ namespace LostDogApp.Models
         public string ImageFileName { get; set; }  // Original file name
         public string ImageContentType { get; set; }  // MIME type
             
-        public string UserId { get; set; } // Foreign key to ApplicationUser
-        public ApplicationUser User { get; set; } // Optional navigation property
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
 
         public int? CityId { get; set; }
         public City City { get; set; }
+
+        public ICollection<LostDogReportComment> Comments { get; set; }
+
     }
 }

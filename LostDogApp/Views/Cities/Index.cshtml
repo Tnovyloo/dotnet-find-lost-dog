@@ -1,16 +1,73 @@
-@model IEnumerable<LostDogApp.Models.City> 
+@model LostDogApp.ViewModels.CityViewModels.CityIndexViewModel
 
 @{
     ViewData["Title"] = "Cities";
 }
 
-<h1>Miasta</h1>
+<h1>Miasta
+    <form method="post" action="@Url.Action("SeedCities", "Cities")">
+        <button type="submit" class="btn btn-primary">Seed</button>
+    </form>
+    <a href="@Url.Action("Create", "Cities")" class="btn btn-primary">Stworz miasto</a>
+</h1>
 
-<p>Kliknij aby wlaczyc seedera miast:</p>
 
-<form method="post" action="@Url.Action("SeedCities", "Cities")">
-    <button type="submit" class="btn btn-primary">Seed</button>
+<form method="get" class="mb-3">
+    <input type="text" name="nameFilter" placeholder="Filtruj po nazwie" value="@Model.NameFilter" class="form-control mb-2" />
+    <input type="text" name="voivodeshipFilter" placeholder="Filtruj po wojewodztwie" value="@Model.VoivodeshipFilter" class="form-control mb-2" />
+    <button type="submit" class="btn btn-primary">Szukaj</button>
 </form>
+
+<div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+
+@section Scripts {
+  <!-- Leaflet CSS/JS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- MarkerCluster CSS/JS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+  />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    var map = L.map('map').setView([52.0, 19.0], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var markers = L.markerClusterGroup();
+
+    var cities = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Cities));
+
+    cities.forEach(function(city) {
+      if (city.Latitude && city.Longitude) {
+        var marker = L.marker([city.Latitude, city.Longitude])
+          .bindPopup(`<b>${city.Name}</b><br>${city.Voivodeship}`);
+        markers.addLayer(marker);
+      }
+    });
+
+    map.addLayer(markers);
+
+    if (markers.getLayers().length > 0) {
+      map.fitBounds(markers.getBounds(), { padding: [50, 50] });
+    }
+  </script>
+}
+
+
+
 
 <table class="table">
     <thead>
@@ -23,7 +80,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var city in Model)
+        @foreach (var city in Model.Cities)
         {
             <tr>
                 <td>@city.Id</td>
@@ -40,5 +97,3 @@
         }
     </tbody>
 </table>
-
-<a href="@Url.Action("Create", "Cities")" class="btn btn-primary">Create New City</a>

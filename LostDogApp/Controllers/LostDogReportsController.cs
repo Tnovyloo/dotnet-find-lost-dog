@@ -29,54 +29,68 @@ namespace LostDogApp.Controllers
 
         // GET: LostDogReports
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string selectedVoivodeship, string selectedCity, string dogNameQuery)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                ViewBag.CurrentUserId = _userManager.GetUserId(User);
-            }
-
-            var reports = await _context.LostDogReports
+            var cities = await _context.Cities.ToListAsync();
+            var reportsQuery = _context.LostDogReports
                 .Include(r => r.City)
-                .ToListAsync();
+                .AsQueryable();
 
-            return View(reports);
+            if (!string.IsNullOrEmpty(selectedVoivodeship))
+                reportsQuery = reportsQuery.Where(r => r.City != null && r.City.Voivodeship == selectedVoivodeship);
+
+            if (!string.IsNullOrEmpty(selectedCity))
+                reportsQuery = reportsQuery.Where(r => r.City != null && r.City.Name == selectedCity);
+
+            if (!string.IsNullOrEmpty(dogNameQuery))
+                reportsQuery = reportsQuery.Where(r => r.DogName.Contains(dogNameQuery));
+
+            var model = new IndexFilterViewModel
+            {
+                SelectedVoivodeship = selectedVoivodeship,
+                SelectedCity = selectedCity,
+                DogNameQuery = dogNameQuery,
+                AvailableVoivodeships = cities.Select(c => c.Voivodeship).Distinct().OrderBy(v => v).ToList(),
+                AvailableCities = cities.Select(c => c.Name).Distinct().OrderBy(n => n).ToList(),
+                Reports = await reportsQuery.ToListAsync()
+            };
+
+            return View(model);
         }
-
 
         // GET: LostDogReports/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null) return NotFound();
+
+            // Include both User and Comments→User
+            var report = await _context.LostDogReports
+                .Include(r => r.User)
+                .Include(r => r.Comments)
+                    .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (report == null) return NotFound();
+
+            var vm = new DetailsViewModel
             {
-                return NotFound();
-            }
-
-            var lostDogReport = await _context.LostDogReports
-                .Include(r => r.User) // if you need user data
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (lostDogReport == null)
-            {
-                return NotFound();
-            }
-
-            System.Console.WriteLine(lostDogReport.ImagePath);
-
-            var viewModel = new DetailsViewModel
-            {
-                DogName = lostDogReport.DogName,
-                Description = lostDogReport.Description,
-                ImagePath = lostDogReport.ImagePath,
-                Latitude = lostDogReport.Latitude,
-                Longitude = lostDogReport.Longitude,
-                ContactNumber = lostDogReport.ContactNumber,
-                UserName = lostDogReport.User?.UserName // if needed
+                Id            = report.Id,
+                DogName       = report.DogName,
+                Description   = report.Description,
+                ImagePath     = report.ImagePath,
+                Latitude      = report.Latitude,
+                Longitude     = report.Longitude,
+                ContactNumber = report.ContactNumber,
+                UserName      = report.User?.UserName,
+                Comments      = report.Comments
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToList()
             };
 
-            return View(viewModel);
+            return View(vm);
         }
+
 
         // GET: LostDogReports/Create
         [Authorize]
