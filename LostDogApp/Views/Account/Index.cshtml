@@ -9,7 +9,7 @@
 <div class="card mb-3 p-3">
     <h4>Informacje użytkownika</h4>
     <dl class="row">
-        <dt class="col-sm-3">Username</dt>
+        <dt class="col-sm-3">Nazwa uzytkownika</dt>
         <dd class="col-sm-9">@Model.User.UserName</dd>
 
         <dt class="col-sm-3">Email</dt>
@@ -22,6 +22,12 @@
     <div class="mt-3">
         <a asp-action="ChangePassword" class="btn btn-outline-primary">Zmień hasło</a>
         <a asp-action="EditAccount" class="btn btn-outline-secondary ml-2">Edytuj profil</a>
+        
+        <div style="margin-top: 1em;">
+            <form asp-action="SeedDogs" method="post" asp-controller="LostDogReports"></form>
+            <button type="submit" class="btn btn-primary">Seeduj zgłoszenia</button>
+        </div>
+
     </div>
 </div>
 

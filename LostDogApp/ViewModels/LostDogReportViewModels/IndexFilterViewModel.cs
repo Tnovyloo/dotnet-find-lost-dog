@@ -12,5 +12,8 @@ namespace LostDogApp.ViewModels.LostDogReportViewModels
         public List<string> AvailableCities { get; set; }
 
         public IEnumerable<LostDogReport> Reports { get; set; }
+
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
     }
 }

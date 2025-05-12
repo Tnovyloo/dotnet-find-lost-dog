@@ -8,9 +8,6 @@
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Stwórz ogłoszenie</a>
-    <form asp-action="SeedDogs" method="post" asp-controller="LostDogReports">
-        <button type="submit" class="btn btn-primary">Seed Dogs</button>
-    </form>
 </p>
 
 <div id="map" style="height: 500px; margin-bottom: 20px;"></div>
@@ -47,66 +44,45 @@
     </div>
 </form>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Zdjecie
-            </th>
-            <th>
-                @* @Html.DisplayNameFor(model => model.DogName) *@
-                Imie psa
-            </th>
-            <th>
-                @* @Html.DisplayNameFor(model => model.Description) *@
-                Opis
-            </th>
-            <th>
-                Sz. Geograficzna
-            </th>
-            <th>
-                Dł. Geograficzna
-            </th>
-            <th>
-                Numer kontaktowy
-            </th>
-            <td>Miasto</td>
-            <td>Wojewodztwo</td>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Reports) {
-        <tr>
-            <td>
-                <img src="@Html.DisplayFor(modelItem => item.ImagePath)" alt="" style="height: 100px;"> 
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DogName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Latitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Longitude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ContactNumber)
-            </td>
-            <td>@(item.City?.Name ?? "Nieznane")</td>
-            <td>@(item.City?.Voivodeship ?? "Nieznane")</td>
-            <td>
-                @* <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | *@
-                <a asp-action="Details" asp-route-id="@item.Id">Szczegóły</a>
-                @* <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row">
+    @foreach (var item in Model.Reports)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="@Html.DisplayFor(modelItem => item.ImagePath)" class="card-img-top" alt="Zdjęcie psa" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.DogName)</h5>
+                    <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
+                    <ul class="list-unstyled mb-3">
+                        <li><strong>Numer kontaktowy:</strong> @Html.DisplayFor(modelItem => item.ContactNumber)</li>
+                        <li><strong>Miasto:</strong> @(item.City?.Name ?? "Nieznane")</li>
+                        <li><strong>Województwo:</strong> @(item.City?.Voivodeship ?? "Nieznane")</li>
+                    </ul>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Szczegóły</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<nav aria-label="Stronicowanie">
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@i"
+                   asp-route-selectedVoivodeship="@Model.SelectedVoivodeship"
+                   asp-route-selectedCity="@Model.SelectedCity"
+                   asp-route-dogNameQuery="@Model.DogNameQuery">
+                    @i
+                </a>
+            </li>
+        }
+    </ul>
+</nav>
+
 
 @section Scripts {
     <!-- Leaflet JS -->

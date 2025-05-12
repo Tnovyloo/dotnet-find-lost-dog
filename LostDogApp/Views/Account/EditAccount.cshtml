@@ -21,7 +21,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label asp-for="UserName"></label>
+        <label asp-for="UserName">Nazwa uzytkownika</label>
         <input asp-for="UserName" class="form-control" />
         <span asp-validation-for="UserName" class="text-danger" />
     </div>
@@ -33,11 +33,11 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="PhoneNumber"></label>
+        <label asp-for="PhoneNumber">Telefon kontatkowy</label>
         <input asp-for="PhoneNumber" class="form-control" />
         <span asp-validation-for="PhoneNumber" class="text-danger" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary mt-2">Zapisz zmiany</button>
+    <a asp-action="Index" class="btn btn-secondary mt-2">Anuluj</a>
 </form>

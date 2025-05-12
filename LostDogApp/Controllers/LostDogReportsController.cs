@@ -29,8 +29,10 @@ namespace LostDogApp.Controllers
 
         // GET: LostDogReports
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string selectedVoivodeship, string selectedCity, string dogNameQuery)
+        public async Task<IActionResult> Index(string selectedVoivodeship, string selectedCity, string dogNameQuery, int page = 1)
         {
+            const int pageSize = 6;
+
             var cities = await _context.Cities.ToListAsync();
             var reportsQuery = _context.LostDogReports
                 .Include(r => r.City)
@@ -45,6 +47,12 @@ namespace LostDogApp.Controllers
             if (!string.IsNullOrEmpty(dogNameQuery))
                 reportsQuery = reportsQuery.Where(r => r.DogName.Contains(dogNameQuery));
 
+            int totalReports = await reportsQuery.CountAsync();
+            var reports = await reportsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var model = new IndexFilterViewModel
             {
                 SelectedVoivodeship = selectedVoivodeship,
@@ -52,7 +60,9 @@ namespace LostDogApp.Controllers
                 DogNameQuery = dogNameQuery,
                 AvailableVoivodeships = cities.Select(c => c.Voivodeship).Distinct().OrderBy(v => v).ToList(),
                 AvailableCities = cities.Select(c => c.Name).Distinct().OrderBy(n => n).ToList(),
-                Reports = await reportsQuery.ToListAsync()
+                Reports = reports,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalReports / (double)pageSize)
             };
 
             return View(model);
@@ -208,6 +218,7 @@ namespace LostDogApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> SeedDogs()
         {
             // Ensure city exists
