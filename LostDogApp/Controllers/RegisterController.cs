@@ -1,48 +1,48 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using LostDogApp.Models;
-using LostDogApp.ViewModels;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using LostDogApp.Models;
+    using LostDogApp.ViewModels;
 
-public class RegisterController : Controller
-{
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-
-    public RegisterController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public class RegisterController : Controller
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-    }
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-    // GET: Register
-    public IActionResult Index()
-    {
-        return View();
-    }
-
-    // POST: Register
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(RegisterViewModel model)
-    {
-        if (ModelState.IsValid)
+        public RegisterController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
-            var user = new ApplicationUser { UserName = model.Username };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
-            if (result.Succeeded)
+        // GET: Register
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // POST: Register
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "LostDogReports");
-            }
-            else
-            {
-                foreach (var error in result.Errors)
+                var user = new ApplicationUser { UserName = model.Username };
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
                 {
-                    ModelState.AddModelError("", error.Description);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "LostDogReports");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
                 }
             }
+            return View(model);
         }
-        return View(model);
     }
-}

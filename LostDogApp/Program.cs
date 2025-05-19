@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Features;
 using LostDogApp.Models;
 using LostDogApp.Seeders;
+using LostDogApp.ErrorDescriber;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddErrorDescriber<PolishIdentityErrorDescriber>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
