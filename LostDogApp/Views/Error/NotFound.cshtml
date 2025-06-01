@@ -1,0 +1,50 @@
+@{
+    ViewBag.Title = "Strona nie znaleziona";
+    ViewBag.StatusCode = 404;
+}
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .my-5 {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    h1 {
+        color: #dc3545;
+        /* Czerwony dla błędów */
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container text-center my-5">
+    <h1>Błąd 404 - Strona nie znaleziona</h1>
+    <p>Przepraszamy, ale strona, której szukasz, nie istnieje lub została przeniesiona.</p>
+    <p>
+        <a href="@Url.Action("Index", "LostDogReports")" class="btn btn-primary">Wróć do strony głównej</a>
+    </p>
+</div>

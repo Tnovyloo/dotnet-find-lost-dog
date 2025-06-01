@@ -1,47 +1,31 @@
-# LostDogApp
+# Aplikacja LostDogApp
 
-This is a .NET 8 application for reporting lost dogs, built with ASP.NET Core and Entity Framework Core, using PostgreSQL as the database. The application is containerized with Docker and managed using Docker Compose.
+Jest to aplikacja oparta na platformie .NET 8 służąca do zgłaszania zaginionych psów, zbudowana z wykorzystaniem ASP.NET Core oraz Entity Framework Core, z bazą danych PostgreSQL. Aplikacja jest konteneryzowana za pomocą Docker i zarządzana przy użyciu Docker Compose.
 
-## Prerequisites
+## Wymagania wstępne
 
-- **Docker**: Install Docker Desktop (or Docker CLI on Linux).
-- **Docker Compose**: Included with Docker Desktop or install separately.
-- **.NET SDK 8.0**: Optional, only needed for local development outside Docker.
-- **Git**: To clone or manage the repository.
+- **Docker**: Zainstaluj Docker Desktop (lub Docker CLI na Linux).
+- **Docker Compose**: Zawarty w Docker Desktop lub instalowany oddzielnie.
+- **.NET SDK 8.0**: Opcjonalne, wymagane tylko do lokalnego programowania poza Dockerem.
+- **Git**: Do klonowania lub zarządzania repozytorium.
 
-## Project Structure
+## Struktura projektu
 
-```
-project/
-├── LostDogApp/
-│   ├── LostDogApp.csproj
-│   ├── appsettings.json
-│   ├── Models/
-│   │   ├── LostDogReport.cs
-│   ├── Program.cs
-│   ├── (other project files)
-│   ├── Dockerfile
-│   └── dev.Dockerfile
-├── docker-compose.yml
-├── docker-compose-migrate.yml
-└── README.md
-```
+- `Dockerfile`: Do budowania wersji produkcyjnej (używa `mcr.microsoft.com/dotnet/aspnet:8.0`).
+- `dev.Dockerfile`: Do programowania i migracji (używa `mcr.microsoft.com/dotnet/sdk:8.0`).
+- `docker-compose.yml`: Definiuje usługi dla programowania (`web-dev`, `postgres`) oraz opcjonalnie dla produkcji (`web`).
+- `docker-compose-migrate.yml`: Definiuje usługi do uruchamiania migracji bazy danych (tylko `migration`).
 
-- `Dockerfile`: For production builds (uses `mcr.microsoft.com/dotnet/aspnet:8.0`).
-- `dev.Dockerfile`: For development and migrations (uses `mcr.microsoft.com/dotnet/sdk:8.0`).
-- `docker-compose.yml`: Defines services for development (`web-dev`, `postgres`) and optionally production (`web`).
-- `docker-compose-migrate.yml`: Defines services for running database migrations (only `migration`).
+## Konfiguracja
 
-## Setup
-
-1. **Clone the Repository**:
+1. **Sklonuj repozytorium**:
    ```bash
-   git clone <repository-url>
+   git clone <adres-url-repozytorium>
    cd LostDogApp
    ```
 
-2. **Verify Configuration**:
-   Ensure `appsettings.json` has the correct database connection string:
+2. **Sprawdź konfigurację**:
+   Upewnij się, że plik `appsettings.json` zawiera poprawny ciąg połączenia z bazą danych:
    ```json
    {
      "ConnectionStrings": {
@@ -49,62 +33,139 @@ project/
      }
    }
    ```
-   Check for `appsettings.Development.json` and update it similarly if it exists.
+   Sprawdź, czy istnieje plik `appsettings.Development.json` i w razie potrzeby zaktualizuj go podobnie.
 
-## Running the Application
+## Uruchamianie aplikacji
 
-The application can be run in development mode using `docker-compose.yml`, which starts the `postgres` database and `web-dev` service with hot reloading.
+Aplikację można uruchomić w trybie programistycznym za pomocą pliku `docker-compose.yml`, który uruchamia bazę danych `postgres` oraz usługę `web-dev` z funkcją automatycznego przeładowania.
 
-### Steps
+### Kroki
 
-1. **Start the Application**:
-   ```bash # Build and start services in detached mode docker compose -f docker-compose.yml up -d ```
+1. **Uruchom aplikację**:
+   ```bash
+   # Buduje i uruchamia usługi w trybie odłączonym
+   docker compose -f docker-compose.yml up -d
+   ```
 
-2. **Access the Application**:
-   - Open `http://localhost:8080` in a browser.
-   - The `web-dev` service uses `dotnet watch` for hot reloading, so code changes in `LostDogApp/` are reflected automatically.
+2. **Dostęp do aplikacji**:
+   - Otwórz `http://localhost:8080` w przeglądarce.
+   - Usługa `web-dev` używa `dotnet watch` do automatycznego przeładowania, więc zmiany w kodzie w folderze `LostDogApp/` są od razu widoczne.
 
-3. **View Logs**:
+3. **Sprawdź logi**:
    ```bash
    docker compose -f docker-compose.yml logs
    ```
 
-4. **Stop the Application**:
+4. **Zatrzymaj aplikację**:
    ```bash
    docker compose -f docker-compose.yml down
    ```
 
-### Notes
+### Uwagi
 
-- The `postgres` service persists data in the `pgdata` Docker volume.
-- If port `8080` or `5432` is in use, edit `docker-compose.yml` to change the host ports (e.g., `8081:8080`).
-- For production, uncomment the `web` service in `docker-compose.yml` and run:
+- Usługa `postgres` przechowuje dane w wolumenie Docker `pgdata`.
+- Jeśli porty `8080` lub `5432` są zajęte, edytuj plik `docker-compose.yml`, aby zmienić porty hosta (np. `8081:8080`).
+- Dla środowiska produkcyjnego odkomentuj usługę `web` w pliku `docker-compose.yml` i uruchom:
   ```bash
   docker compose -f docker-compose.yml up -d web
   ```
 
-## Running Database Migrations
+## Uruchamianie migracji bazy danych
 
-Database migrations are managed using `docker-compose-migrate.yml`, which defines the `migration` service. This allows you to apply Entity Framework Core migrations independently without starting the `web-dev` service. To run `migration` service, make sure that your main `postgres` service (from docker-compose.yml) runs.
+Migracje bazy danych są zarządzane za pomocą pliku `docker-compose-migrate.yml`, który definiuje usługę `migration`. Umożliwia to stosowanie migracji Entity Framework Core niezależnie od uruchamiania usługi `web-dev`. Aby uruchomić usługę `migration`, upewnij się, że główna usługa `postgres` (z pliku `docker-compose.yml`) jest uruchomiona.
 
-### Steps
+### Kroki
 
-1. **Build the Migration Service**:
+1. **Zbuduj usługę migracji**:
    ```bash
    docker compose -f docker-compose-migrate.yml build
    ```
 
-2. **Run Migrations**:
+2. **Uruchom migracje**:
    ```bash
    docker compose -f docker-compose-migrate.yml up
    ```
 
-3. **Verify Migrations**:
-   Check the database schema:
+3. **Zweryfikuj migracje**:
+   Sprawdź schemat bazy danych:
    ```bash
    docker compose -f docker-compose.yml exec postgres psql -U lostdog -d lostdogapp -c "\dt"
    ```
-   View migration history:
+   Sprawdź historię migracji:
    ```bash
    docker compose -f docker-compose.yml exec postgres psql -U lostdog -d lostdogapp -c "SELECT * FROM __EFMigrationsHistory;"
    ```
+
+
+## Instrukcja obsługi
+
+### Logowanie i rejestracja
+
+1. **Rejestracja użytkownika**:
+   - Przejdź na stronę rejestracji, aby utworzyć nowe konto. Wypełnij formularz, podając dane, takie jak adres e-mail, hasło i potwierdzenie hasła. Hasło musi spełniać wymagania bezpieczeństwa (np. minimalna długość, znaki specjalne), co jest pokazane na zrzucie ![image](docs/PasswordValidatorsOnCreatingUser.png)
+![image](docs/AccountPageAfterRegister.png)
+
+2. **Logowanie**:
+   - Na stronie logowania wprowadź poprawny adres e-mail i hasło. W przypadku błędnych danych pojawi się komunikat o nieudanym logowaniu, widoczny na zrzucie ![image](docs/InvalidLogin.png)
+
+3. **Zmiana hasła**:
+   - Zalogowani użytkownicy mogą zmienić hasło w sekcji edycji konta. Po pomyślnej zmianie zobaczysz potwierdzenie, jak na zrzucie ![image](docs/SuccessfullChangedPassword.png)
+
+### Zarządzanie kontem
+
+1. **Edycja danych użytkownika**:
+   - W sekcji konta zalogowanego użytkownika możesz edytować dane, takie jak imię czy dane kontaktowe, co pokazano na zrzutach ![image](docs/AccountEditForm.png) i ![image](docs/AccountAfterEditing.png)
+   - Anonimowi użytkownicy próbujący uzyskać dostęp do widoku konta zobaczą błąd, jak na zrzucie ![image](docs/AnonymousUserAccountView-error.png)
+
+### Dodawanie i zarządzanie miastami
+
+1. **Dodawanie miast**:
+   - Tylko zalogowani użytkownicy mogą dodawać nowe miasta, które są używane do filtrowania zgłoszeń. Formularz dodawania miasta jest pokazany na zrzucie ![image](docs/CreatingCity.png)
+   - Po dodaniu miasta zobaczysz potwierdzenie, jak na zrzucie ![image](docs/CityViewAfterCreatingCity.png). Lista miast jest dostępna na widoku ![image](docs/CreatingAndListingCities.png)
+   - Nieautoryzowani użytkownicy próbujący dodać miasto zobaczą błąd 404, widoczny na zrzucie ![image](docs/404.png)
+
+2. **Edycja miast**:
+![image](docs/EditingCityForLoggedUser.png).
+
+3. **Seedowanie miast**:
+   - Administratorzy mogą seedować bazę danych miastami, ale ta funkcja jest dostępna tylko dla uprawnionych użytkowników. Próba dostępu przez nieautoryzowanego użytkownika również skutkuje błędem 404 ![image](docs/404.png)
+
+### Zgłaszanie i zarządzanie zgłoszeniami zaginionych psów
+
+1. **Tworzenie zgłoszenia**:
+   - Zalogowani użytkownicy mogą zgłosić zaginionego psa, wypełniając formularz, jak pokazano na zrzucie ![image](docs/CreatingLostDogReport.png).
+![image](docs/LostDogAfterCreating.png)
+
+2. **Edycja zgłoszenia**:
+   - Użytkownicy mogą edytować zgłoszenia, w tym zmieniać miasto lub zdjęcie psa, co pokazano na zrzucie ![image](docs/LostDogReportEditing-also-changing-city-and-photo.png)
+   - Po aktualizacji zgłoszenia zobaczysz zaktualizowany widok, jak na zrzucie ![image](docs/UpdatedLostDogReport-with-city-and-photo.png)
+
+3. **Walidacja zgłoszeń**:
+   - W przypadku błędów w formularzu zgłoszenia (np. brak wymaganych pól), aplikacja wyświetli komunikaty walidacji, widoczne na zrzucie ![image](docs/LostDogValidationOnErrors.png)
+
+4. **Przeglądanie szczegółów zgłoszenia**:
+   - Szczegółowy widok zgłoszenia, w tym dane psa i lokalizacja, jest dostępny na zrzucie ![image](docs/DetailViewForLostDog.png)
+
+### Komentowanie zgłoszeń
+
+1. **Dodawanie komentarzy**:
+   - Zalogowani użytkownicy mogą dodawać komentarze do zgłoszeń, jak pokazano na zrzucie ![image](docs/AddingCommentOnLostDogDetailView.png)
+
+2. **Usuwanie komentarzy**:
+   - Właściciel komentarza widzi przycisk usuwania, jak na zrzucie ![image](docs/OwnerViewOfComment-remove-comment-button-not-showed-for-other-user.png)
+   - Inni użytkownicy nie widzą przycisku usuwania, co pokazano na zrzucie ![image](docs/OtherUserViewOfComment-remove-button-not-visible.png)
+
+### Filtrowanie i paginacja zgłoszeń
+
+1. **Strona główna i filtrowanie**:
+   - Strona główna ![image](docs/LandingPage.png) wyświetla listę zgłoszeń zaginionych psów.
+   - Możesz filtrować zgłoszenia po mieście ![image](docs/LandingPageBeforeFiltrationByCity.png) i ![image](docs/LandingPageAfterFiltrationByCity.png) lub województwie ![image](docs/LandingPageFiltrationByVoivodeship.png)
+
+2. **Paginacja**:
+![image](docs/LandingPagePagination1.png) i ![image](docs/LandingPagePagination2.png)
+
+### Uwagi
+
+- **Automatyczne przypisywanie miasta**: Aplikacja używa metody Haversine do określenia najbliższego miasta na podstawie współrzędnych zgłoszenia, co ułatwia późniejsze filtrowanie.
+- **Ograniczenia dostępu**: Funkcje takie jak dodawanie miast czy seedowanie danych są dostępne tylko dla zalogowanych użytkowników. Próby dostępu przez nieautoryzowanych użytkowników skutkują błędem 404.
+- **Walidacja i bezpieczeństwo**: Wszystkie formularze zawierają walidację, a hasła muszą spełniać określone wymagania bezpieczeństwa.

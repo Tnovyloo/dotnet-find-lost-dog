@@ -124,7 +124,7 @@ namespace LostDogApp.Controllers
 
             if (model.Latitude == null || model.Longitude == null)
             {
-                ModelState.AddModelError("", "Both latitude and longitude are required");
+                ModelState.AddModelError("", "Wymagane są zarówno szerokość, jak i długość geograficzna.");
             }
 
             ModelState.Remove("User");
@@ -134,7 +134,7 @@ namespace LostDogApp.Controllers
             {   
                 if (model.ImageFile.Length > 10 * 1024 * 1024) // 10MB limit
                 {
-                    ModelState.AddModelError("ImageFile", "File size cannot exceed 10MB");
+                    ModelState.AddModelError("ImageFile", "Rozmiar pliku nie może przekraczać 10 MB.");
                     return View(model);
                 }
 
@@ -142,7 +142,8 @@ namespace LostDogApp.Controllers
                 var extension = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
                 if (!allowedExtensions.Contains(extension))
                 {
-                    ModelState.AddModelError("ImageFile", "Only image files (JPG, PNG, GIF) are allowed.");
+                    ModelState.AddModelError("ImageFile", "Dozwolone są tylko pliki graficzne (JPG, PNG, GIF).");
+
                     return View(model);
                 }
 
@@ -204,13 +205,13 @@ namespace LostDogApp.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    Console.WriteLine("Report created successfully");
+                    Console.WriteLine("Stworzono obiekt");
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error creating report: {ex.Message}");
-                    ModelState.AddModelError("", "An error occurred while saving the report.");
+                    ModelState.AddModelError("", "Wystąpił błąd podczas tworzenia obiektu");
                 }
             }
             return View(model);

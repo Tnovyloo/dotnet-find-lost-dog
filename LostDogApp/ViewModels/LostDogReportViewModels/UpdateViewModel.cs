@@ -7,18 +7,18 @@ namespace LostDogApp.ViewModels.LostDogReportViewModels
     {
         public int Id { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Imie psa jest wymagane.")]
         public string DogName { get; set; }
         
         public string Description { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numer kontaktowy jest wymagany.")]
         public required string ContactNumber { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Szerokość geograficzna jest wymagana.")]
         public double Latitude { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Długość geograficzna jest wymagana.")]
         public double Longitude { get; set; }
         
         [Display(Name = "Dog Photo")]

@@ -7,21 +7,23 @@ namespace LostDogApp.ViewModels.LostDogReportViewModels
     {
         public int Id { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Imię psa jest wymagane.")]
         public string DogName { get; set; }
         
+        [Required(ErrorMessage = "Opis jest wymagany.")]
         public string Description { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numer kontaktowy jest wymagany.")]
         public required string ContactNumber { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Szerokość geograficzna jest wymagana.")]
         public double Latitude { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Długość geograficzna jest wymagana.")]
         public double Longitude { get; set; }
-        
+
         [Display(Name = "Dog Photo")]
+        [Required(ErrorMessage = "Zdjęcie jest wymagane")]
         public IFormFile ImageFile { get; set; }  // For file upload
         
         public string? ImagePath { get; set; } // To store and show existing path.

@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 namespace LostDogApp.ViewModels.AccountViewModels {
     public class ChangePasswordViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Hasło jest wymagane")]
         [DataType(DataType.Password)]
         [Display(Name = "Current Password")]
         public string OldPassword { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Hasło jest wymagane")]
         [DataType(DataType.Password)]
         [StringLength(100, MinimumLength = 6)]
         [Display(Name = "New Password")]

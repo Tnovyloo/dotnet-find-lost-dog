@@ -1,0 +1,50 @@
+@{
+    ViewBag.Title = "Złe żądanie";
+    ViewBag.StatusCode = 400;
+}
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .my-5 {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    h1 {
+        color: #dc3545;
+        /* Czerwony dla błędów */
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container text-center my-5">
+    <h1>Błąd 400 - Złe żądanie</h1>
+    <p>Twoje żądanie zawiera nieprawidłowe dane. Sprawdź wprowadzone informacje i spróbuj ponownie.</p>
+    <p>
+        <a href="@Url.Action("Index", "LostDogReports")" class="btn btn-primary">Wróć do strony głównej</a>
+    </p>
+</div>

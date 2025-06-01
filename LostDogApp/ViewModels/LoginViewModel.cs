@@ -4,10 +4,10 @@ namespace LostDogApp.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Nazwa uzytkownika jest wymagana")]
         public required string Username { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Haslo jest wymagane")]
         [DataType(DataType.Password)]
         public required string Password { get; set; }
 
