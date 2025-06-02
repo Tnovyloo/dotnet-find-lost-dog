@@ -16,11 +16,16 @@ Jest to aplikacja oparta na platformie .NET 8 służąca do zgłaszania zaginion
 - `docker-compose.yml`: Definiuje usługi dla programowania (`web-dev`, `postgres`) oraz opcjonalnie dla produkcji (`web`).
 - `docker-compose-migrate.yml`: Definiuje usługi do uruchamiania migracji bazy danych (tylko `migration`).
 
+
+## Diagram ERD
+Dla projektu przygotowano diagram ERD.
+![](docs/ERD.png)
+
 ## Konfiguracja
 
 1. **Sklonuj repozytorium**:
    ```bash
-   git clone <adres-url-repozytorium>
+   git clone https://github.com/Tnovyloo/dotnet-find-lost-dog
    cd LostDogApp
    ```
 
@@ -38,6 +43,7 @@ Jest to aplikacja oparta na platformie .NET 8 służąca do zgłaszania zaginion
 ## Uruchamianie aplikacji
 
 Aplikację można uruchomić w trybie programistycznym za pomocą pliku `docker-compose.yml`, który uruchamia bazę danych `postgres` oraz usługę `web-dev` z funkcją automatycznego przeładowania.
+
 
 ### Kroki
 
